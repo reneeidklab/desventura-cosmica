@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Desventura Cósmica - Webcomic</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>DESVENTURA CÓSMICA</h1>
+
+    <nav>
+        <a href="index.html">Início</a>
+        <a href="comic.html">Comic</a>
+        <a href="about.html">Sobre</a>
+    </nav>
+</header>
+
+<main class="comic-page">
+
+    <div class="comic-header">
+
+        <h2 id="chapter-title">Capítulo 1</h2>
+
+        <div class="chapter-selector">
+            <button id="previous-chapter">← Anterior</button>
+
+            <select id="chapter-select">
+                <option value="1">Capítulo 1</option>
+                <option value="2">Capítulo 2</option>
+            </select>
+
+            <button id="next-chapter">Próximo →</button>
+        </div>
+
+    </div>
+
+    <div id="comic-container">
+        <!-- As páginas serão colocadas aqui pelo JavaScript -->
+    </div>
+
+    <div class="comic-navigation">
+
+        <button id="bottom-previous">← Capítulo anterior</button>
+
+        <a href="index.html">Voltar para o início</a>
+
+        <button id="bottom-next">Próximo capítulo →</button>
+
+    </div>
+
+</main>
+
+<script>
+
+    const chapters = {
+        1: {
+            title: "Capítulo 1",
+            pages: 3
+        },
+
+        2: {
+            title: "Capítulo 2",
+            pages: 3
+        }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+
+    let currentChapter = parseInt(params.get("chapter")) || 1;
+
+    const container = document.getElementById("comic-container");
+    const title = document.getElementById("chapter-title");
+    const selector = document.getElementById("chapter-select");
+
+    const previousButton = document.getElementById("previous-chapter");
+    const nextButton = document.getElementById("next-chapter");
+
+    const bottomPrevious = document.getElementById("bottom-previous");
+    const bottomNext = document.getElementById("bottom-next");
+
+
+    function loadChapter(chapterNumber) {
+
+        if (!chapters[chapterNumber]) {
+            return;
+        }
+
+        currentChapter = chapterNumber;
+
+        const chapter = chapters[currentChapter];
+
+        title.textContent = chapter.title;
+
+        selector.value = currentChapter;
+
+        container.innerHTML = "";
+
+        for (let i = 1; i <= chapter.pages; i++) {
+
+            const image = document.createElement("img");
+
+            image.src =
+                `images/chapters/${String(currentChapter).padStart(2, "0")}/${String(i).padStart(2, "0")}.webp`;
+
+            image.alt =
+                `${chapter.title} - Página ${i}`;
+
+            image.loading = "lazy";
+
+            image.classList.add("comic-image");
+
+            container.appendChild(image);
+        }
+
+        updateButtons();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+        history.replaceState(
+            null,
+            "",
+            `comic.html?chapter=${currentChapter}`
+        );
+    }
+
+
+    function updateButtons() {
+
+        const firstChapter = currentChapter === 1;
+
+        const lastChapter =
+            currentChapter === Object.keys(chapters).length;
+
+        previousButton.disabled = firstChapter;
+        bottomPrevious.disabled = firstChapter;
+
+        nextButton.disabled = lastChapter;
+        bottomNext.disabled = lastChapter;
+    }
+
+
+    function previousChapter() {
+
+        if (currentChapter > 1) {
+            loadChapter(currentChapter - 1);
+        }
+    }
+
+
+    function nextChapter() {
+
+        if (currentChapter < Object.keys(chapters).length) {
+            loadChapter(currentChapter + 1);
+        }
+    }
+
+
+    selector.addEventListener("change", function () {
+
+        loadChapter(parseInt(this.value));
+
+    });
+
+
+    previousButton.addEventListener(
+        "click",
+        previousChapter
+    );
+
+    bottomPrevious.addEventListener(
+        "click",
+        previousChapter
+    );
+
+    nextButton.addEventListener(
+        "click",
+        nextChapter
+    );
+
+    bottomNext.addEventListener(
+        "click",
+        nextChapter
+    );
+
+
+    loadChapter(currentChapter);
+
+</script>
+
+</body>
+</html>
